@@ -1,5 +1,5 @@
 #define PY_SSIZE_T_CLEAN
-#include "kmeansmodule.h"
+#include "symnmf.h"
 #include <Python.h>
 
 vector *build_vectors(PyObject *PyPoints, int dim, int n) {
