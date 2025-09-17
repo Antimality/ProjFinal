@@ -1,4 +1,4 @@
 .vscode/
 build/
 212*/
-*.so
+*.o
