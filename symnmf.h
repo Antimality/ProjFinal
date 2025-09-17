@@ -69,4 +69,4 @@ void free_matrix(double **matrix, int rows);
  */
 void handle_error();
 
-#endif /* SYMNMF_H */
+#endif
