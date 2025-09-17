@@ -22,17 +22,9 @@ def _symnmf(data_points_list, n, k):
     return symnmf.symnmf(w_matrix, h_init.tolist())
 
 
-def main():
+def run_symnmf(k, goal, file_name):
     """Main execution function."""
     try:
-        # Validate and parse command-line arguments [cite: 60-67]
-        if len(sys.argv) != 4:
-            raise ValueError("Invalid number of arguments")
-
-        k = int(sys.argv[1])
-        goal = sys.argv[2]
-        file_name = sys.argv[3]
-
         # Read data from file
         data_points = np.loadtxt(file_name, delimiter=",")
         data_points_list = data_points.tolist()
@@ -51,9 +43,7 @@ def main():
             case "symnmf":
                 result_matrix = _symnmf(data_points_list, n, k)
 
-        # Print the final matrix
-        if result_matrix:
-            print_matrix(result_matrix)
+        return result_matrix
 
     except Exception as _:
         print("An Error Has Occurred")
@@ -61,4 +51,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    k = int(sys.argv[1])
+    goal = sys.argv[2]
+    file_name = sys.argv[3]
+    run_symnmf(k, goal, file_name)
