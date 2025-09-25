@@ -2,8 +2,6 @@
 #include "symnmf.h"
 #include <Python.h>
 
-// TODO: Make sure all functions are less than 40 lines
-
 // Forward declarations for the wrapper functions
 static PyObject *sym_wrapper(PyObject *self, PyObject *args);
 static PyObject *ddg_wrapper(PyObject *self, PyObject *args);

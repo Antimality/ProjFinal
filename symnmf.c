@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// TODO: Make sure all functions are less than 40 lines
-
 /*
  * ============================================================================
  * Main function for command-line execution
