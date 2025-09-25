@@ -19,7 +19,7 @@ def _symnmf(data_points_list, n, d, k):
     h_init = np.random.uniform(0, 2 * np.sqrt(m / k), size=(n, k))
 
     # 3. Call the C extension with initial H and W
-    return symnmf.symnmf(w_matrix, h_init.tolist())
+    return symnmf.symnmf(w_matrix, h_init.tolist(), n, k)
 
 
 def run_symnmf(k, goal, file_name):

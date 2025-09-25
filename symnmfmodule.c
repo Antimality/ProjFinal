@@ -66,12 +66,12 @@ PyMODINIT_FUNC PyInit_mysymnmf(void) {
 
 /*
  * ============================================================================
- * Wrapper Function Implementations
+ * Matrix c/py Convertion Functions
  * ============================================================================
  */
 
 // Helper function to convert a Python list of lists to a C double**
-double **matrix_py_to_c(PyObject *py_matrix, int n, int d) {
+double **matrix_py_to_c(PyObject *py_matrix, int n, int m) {
     // 1. Get dimensions n (rows) and d (cols).
     // 2. Allocate memory for a C double** matrix.
     // 3. Iterate through the Python list, converting each element to double and populating the C matrix.
@@ -82,16 +82,16 @@ double **matrix_py_to_c(PyObject *py_matrix, int n, int d) {
         return NULL;
     for (i = 0; i < n; i++) {
         PyObject *row = PyList_GetItem(py_matrix, i);
-        if (!PyList_Check(row) || PyList_Size(row) != d) {
+        if (!PyList_Check(row) || PyList_Size(row) != m) {
             free_matrix(c_matrix, i);
             return NULL;
         }
-        c_matrix[i] = (double *)malloc((d) * sizeof(double));
+        c_matrix[i] = (double *)malloc((m) * sizeof(double));
         if (!c_matrix[i]) {
             free_matrix(c_matrix, i);
             return NULL;
         }
-        for (j = 0; j < d; j++) {
+        for (j = 0; j < m; j++) {
             PyObject *item = PyList_GetItem(row, j);
             c_matrix[i][j] = PyFloat_AsDouble(item);
             if (PyErr_Occurred()) {
@@ -104,7 +104,7 @@ double **matrix_py_to_c(PyObject *py_matrix, int n, int d) {
 }
 
 // Helper function to convert a C double** to a Python list of lists
-PyObject *matrix_c_to_py(double **c_matrix, int n, int d) {
+PyObject *matrix_c_to_py(double **c_matrix, int n, int m) {
     // 1. Create a new Python list (PyList_New).
     // 2. Iterate through the C matrix. For each row, create a new Python list.
     // 3. For each element in the row, create a Python float (PyFloat_FromDouble) and add it to the row list.
@@ -117,13 +117,13 @@ PyObject *matrix_c_to_py(double **c_matrix, int n, int d) {
     if (!py_matrix)
         return NULL;
     for (int i = 0; i < n; i++) {
-        PyObject *row_list = PyList_New(d);
+        PyObject *row_list = PyList_New(m);
         if (!row_list) {
             Py_DECREF(py_matrix);
             free_matrix(c_matrix, n);
             return NULL;
         }
-        for (int j = 0; j < d; j++) {
+        for (int j = 0; j < m; j++) {
             PyObject *num = PyFloat_FromDouble(c_matrix[i][j]);
             if (!num) {
                 Py_DECREF(row_list);
@@ -137,6 +137,12 @@ PyObject *matrix_c_to_py(double **c_matrix, int n, int d) {
     }
     return py_matrix;
 }
+
+/*
+ * ============================================================================
+ * Wrapper Function Implementations
+ * ============================================================================
+ */
 
 double **_sym_wrapper(PyObject *points_py, int n, int d) {
     double **points_c, **sym_c;
@@ -218,9 +224,25 @@ static PyObject *norm_wrapper(PyObject *self, PyObject *args) {
 }
 
 static PyObject *symnmf_wrapper(PyObject *self, PyObject *args) {
-    PyObject *W_py, *H_init_py;
-    if (!PyArg_ParseTuple(args, "OO", &W_py, &H_init_py))
+    PyObject *W_py, *H_init_py, *H_py;
+    double **W_c, **H_init_c, **H_c;
+    int n, k;
+    if (!PyArg_ParseTuple(args, "OOii", &W_py, &H_init_py, &n, &k))
         return NULL;
-    // TODO: Convert W_py and H_init_py to C, call calc_symnmf, convert result, free memory, and return.
-    return Py_BuildValue(""); // Placeholder
+    W_c = matrix_py_to_c(W_py, n, n);
+    Py_DECREF(W_py);
+    if (!W_c)
+        return NULL;
+    H_init_c = matrix_py_to_c(H_init_py, n, k);
+    Py_DECREF(H_init_py);
+    if (!H_init_c) {
+        free_matrix(W_c, n);
+        return NULL;
+    }
+    H_c = calc_symnmf(W_c, H_init_c, n, k);
+    free_matrix(W_c, n);
+    free_matrix(H_init_c, n);
+    H_py = matrix_c_to_py(H_c, n, k);
+    free_matrix(H_c, n);
+    return H_py;
 }
