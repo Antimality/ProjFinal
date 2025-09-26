@@ -4,6 +4,23 @@
 #define epsilon 0.0001
 #define beta 0.5
 #define delta 0.000001
+
+/*
+struct definitions
+*/
+
+struct cord {
+    double value;
+    struct cord *next;
+};
+
+struct vector {
+    struct cord *cords;
+    struct vector *next;
+};
+
+typedef struct cord cord;
+typedef struct vector vector;
 /*
  * ============================================================================
  * Function Prototypes
@@ -83,13 +100,14 @@ double euclidean_distance(double *vec1, double *vec2, int dim);
 
 /**
  * @brief calculates Frobenius norm of a 2D matrix.
- * @param matrix The matrix to calculate.
+ * @param matrix1 The matrix to calculate.
+ * @param matrix2 The matrix to calculate.
  * @param rows The number of rows in the matrix.
  * @param cols The number of columns in the matrix.
  * @param dim the vector dimansion.
  * @return Frobenius norm.
  */
-double frobenius_norm(double **matrix, int rows, int cols);
+double frobenius_norm(double **matrix1, double **matrix2, int rows, int cols);
 
 /**
  * @brief Returns the multiplication of two matrixes.
@@ -148,4 +166,12 @@ double **matrix_init(int rows, int cols);
  * @param n the size of the matrix.
  */
 void inv_root(double **matrix, int n);
+
+void free_cords(cord *head);
+
+void free_vectors(vector *vec);
+
+double **read_input(char *file_name);
+
+double **vec_to_mat(vector *head_vec,int rows);
 #endif
