@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+int global_n;
+int global_d; 
 /*
  * ============================================================================
  * Main function for command-line execution
@@ -12,41 +15,34 @@ int main(int argc, char *argv[]) {
     if (argc != 3) {
         handle_error();}
     char *goal = argv[1];
-    char *file_name = argv[2];                
-    double **data_points = NULL; // Read from file_name
+    char *file_name = argv[2];               
+    double **data_points = read_input(file_name); // Read from file_name
     if( data_points==NULL){
-        free(file_name);
-        free(goal);
         handle_error();
-    }
-    int n = 0;                   
-    int d = 0;   
+    } 
     if (strcmp(goal, "sym") == 0) {
-        double **sim_matrix = calc_sym(data_points,n,d);
-        print_matrix(sim_matrix,n,n);
-        free_matrix(sim_matrix,n);
+        double **sim_matrix = calc_sym(data_points,global_n,global_d);
+        print_matrix(sim_matrix,global_n,global_n);
+        free_matrix(sim_matrix,global_n);
     } else if (strcmp(goal, "ddg") == 0) {
-        double **sim_matrix = calc_sym(data_points,n,d);
-        double **ddg_matrix = calc_ddg(sim_matrix,n);
-        print_matrix(ddg_matrix,n,n);
-        free_matrix(sim_matrix,n);
-        free_matrix(ddg_matrix,n);
+        double **sim_matrix = calc_sym(data_points,global_n,global_d);
+        double **ddg_matrix = calc_ddg(sim_matrix,global_n);
+        print_matrix(ddg_matrix,global_n,global_n);
+        free_matrix(sim_matrix,global_n);
+        free_matrix(ddg_matrix,global_n);
     } else if (strcmp(goal, "norm") == 0) {
-        double **sim_matrix = calc_sym(data_points,n,d);
-        double **ddg_matrix = calc_ddg(sim_matrix,n);
-        double **norm_matrix = calc_norm(sim_matrix,ddg_matrix,n);
-        print_matrix(norm_matrix,n,n);
-        free_matrix(sim_matrix,n);
-        free_matrix(ddg_matrix,n);
-        free_matrix(norm_matrix,n);
+        double **sim_matrix = calc_sym(data_points,global_n,global_d);
+        double **ddg_matrix = calc_ddg(sim_matrix,global_n);
+        double **norm_matrix = calc_norm(sim_matrix,ddg_matrix,global_n);
+        print_matrix(norm_matrix,global_n,global_n);
+        free_matrix(sim_matrix,global_n);
+        free_matrix(ddg_matrix,global_n);
+        free_matrix(norm_matrix,global_n);
     } else {
         handle_error();
     }
-    free_matrix(data_points,n);
-    free(file_name);
-    free(goal);
-    return 0;
-}
+    free_matrix(data_points,global_n);
+    return 0;}
 
 /*
  * ============================================================================
@@ -93,7 +89,6 @@ double **calc_norm(double **similarity_matrix, double **ddg_matrix, int n) {
     if(tmp == NULL){
         handle_error();
     }
-    free_matrix(similarity_matrix, n);
     double **result = matrix_multiply(tmp, ddg_matrix, n, n, n, n);
     free_matrix(tmp, n);
     if(result == NULL){
@@ -104,21 +99,24 @@ double **calc_norm(double **similarity_matrix, double **ddg_matrix, int n) {
 
 double **calc_symnmf(double **W, double **H, int n, int k) {
     double **new_H = NULL;
-    for (int i = 0; i < MAX_ITER; i++){
-        new_H = H_update(W, H, n, n, n, k);
+    double **H_copy = H; 
+    for (int i = 0; i < MAX_ITER; i++) {
+        new_H = H_update(W, H_copy, n, n, n, k);
         if(new_H == NULL){
-        handle_error();
+            if(H_copy != H){
+                free_matrix(H_copy,n);
+            }
+            return NULL;
         }
-        if(frobenius_norm(H,new_H, n, k) < epsilon){
-            free_matrix(new_H,n);
-            return H;
-        }
-        else{
-            free_matrix(H,n);
-            H = new_H;
+        if(frobenius_norm(H_copy, new_H, n, k) < epsilon) {
+            free_matrix(new_H, n);
+            return H_copy;
+        } else {
+            free_matrix(H_copy, n);
+            H_copy = new_H;
         }
     }
-    return H;
+    return H_copy;
 }
 
 /*
@@ -264,7 +262,9 @@ double **matrix_init(int rows, int cols){
 
 void inv_root(double **matrix, int n){
     for (int i = 0; i < n; i++){
-        matrix[i][i] = 1/sqrt(matrix[i][i]);
+        if(matrix[i][i] != 0){
+            matrix[i][i] = 1/sqrt(matrix[i][i]);
+        }
     }
 }
 
@@ -362,5 +362,7 @@ double **vec_to_mat(vector *head_vec,int rows){
         curr_vec = curr_vec->next;
     }
     free_vectors(head_vec);
+    global_n = rows;
+    global_d = d;
     return matrix;
 }
