@@ -9,17 +9,10 @@ def print_matrix(matrix):
         print(",".join(["%.4f" % val for val in row]))
 
 
-def _symnmf(data_points_list, n, k):
-    # 1. Calculate W (normalized similarity matrix)
-    w_matrix = symnmf.norm(data_points_list)
-
-    # 2. Initialize H in Python as required [cite: 68-70]
+def init_H(w_matrix, k):
     np.random.seed(1234)
-    m = np.mean(w_matrix)
-    h_init = np.random.uniform(0, 2 * np.sqrt(m / k), size=(n, k))
-
-    # 3. Call the C extension with initial H and W
-    return symnmf.symnmf(w_matrix, h_init.tolist())
+    m = np.mean(w_matrix, dtype=np.float64)
+    return np.random.uniform(0.0, 2 * np.sqrt(m / float(k)), size=(len(w_matrix), k)).astype(np.float64, copy=False)
 
 
 def run_symnmf(k, goal, file_name):
@@ -35,13 +28,23 @@ def run_symnmf(k, goal, file_name):
         # Execute the requested goal
         match goal:
             case "sym":
-                result_matrix = symnmf.sym(data_points_list)
+                result_matrix = symnmf.sym(data_points_list, n, d)
             case "ddg":
-                result_matrix = symnmf.ddg(data_points_list)
+                result_matrix = symnmf.ddg(data_points_list, n, d)
             case "norm":
-                result_matrix = symnmf.norm(data_points_list)
+                result_matrix = symnmf.norm(data_points_list, n, d)
             case "symnmf":
-                result_matrix = _symnmf(data_points_list, n, k)
+                # Calculate W (normalized similarity matrix)
+                w_matrix = symnmf.norm(data_points_list, n, d)
+
+                # Initialize H in Python as required
+                h_init = init_H(w_matrix, k)
+
+                # Call the C extension with initial H and W
+                result_matrix = symnmf.symnmf(w_matrix, h_init.tolist(), n, k)
+
+        if result_matrix is None:
+            raise RuntimeError
 
         return result_matrix
 
@@ -54,4 +57,4 @@ if __name__ == "__main__":
     k = int(sys.argv[1])
     goal = sys.argv[2]
     file_name = sys.argv[3]
-    run_symnmf(k, goal, file_name)
+    print_matrix(run_symnmf(k, goal, file_name))
