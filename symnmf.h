@@ -5,6 +5,8 @@
 #define beta 0.5
 #define delta 0.000001
 
+#include <stdio.h>
+
 /*
 struct definitions
 */
@@ -119,7 +121,7 @@ double frobenius_norm(double **matrix1, double **matrix2, int rows, int cols);
  * @param cols2 The second matrix number of columns.
  * @returns a pointer to the caluclated matrix.
  */
-double **matrix_multiply(double **matrix1, double **matrix2, int row1, int row2, int cols1, int cols2 );
+double **matrix_multiply(double **matrix1, double **matrix2, int row1, int row2, int cols1, int cols2);
 
 /**
  * @brief Returns the special multiplication of the H matrix.
@@ -138,7 +140,7 @@ double **H_multiply(double **matrix, int rows, int cols);
  * @param cols The first  number of columns.
  * @returns a pointer to the caluclated matrix.
  */
-double **matrix_subtract(double **matrix1, double **matrix2, int rows, int cols );
+double **matrix_subtract(double **matrix1, double **matrix2, int rows, int cols);
 
 /**
  * @brief Returns the next iteration of H
@@ -173,7 +175,8 @@ void free_vectors(vector *vec);
 
 double **read_input(char *file_name);
 
-double **vec_to_mat(vector *head_vec,int rows);
+double **vec_to_mat(vector *head_vec, int rows);
 
-double **free_read(vector *head_vec, cord *head_cord, FILE *fp)
+double **free_read(vector *head_vec, cord *head_cord, FILE *fp);
+
 #endif
