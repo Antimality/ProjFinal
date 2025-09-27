@@ -174,4 +174,6 @@ void free_vectors(vector *vec);
 double **read_input(char *file_name);
 
 double **vec_to_mat(vector *head_vec,int rows);
+
+double **free_read(vector *head_vec, cord *head_cord, FILE *fp)
 #endif
