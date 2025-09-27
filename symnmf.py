@@ -9,17 +9,10 @@ def print_matrix(matrix):
         print(",".join(["%.4f" % val for val in row]))
 
 
-def _symnmf(data_points_list, n, d, k):
-    # 1. Calculate W (normalized similarity matrix)
-    w_matrix = symnmf.norm(data_points_list, n, d)
-
-    # 2. Initialize H in Python as required [cite: 68-70]
+def init_H(w_matrix, k):
     np.random.seed(1234)
     m = np.mean(w_matrix)
-    h_init = np.random.uniform(0, 2 * np.sqrt(m / k), size=(n, k))
-
-    # 3. Call the C extension with initial H and W
-    return symnmf.symnmf(w_matrix, h_init.tolist(), n, k)
+    return np.random.uniform(0, 2 * np.sqrt(m / k), size=(len(w_matrix), k))
 
 
 def run_symnmf(k, goal, file_name):
@@ -41,7 +34,14 @@ def run_symnmf(k, goal, file_name):
             case "norm":
                 result_matrix = symnmf.norm(data_points_list, n, d)
             case "symnmf":
-                result_matrix = _symnmf(data_points_list, n, d, k)
+                # Calculate W (normalized similarity matrix)
+                w_matrix = symnmf.norm(data_points_list, n, d)
+
+                # Initialize H in Python as required
+                h_init = init_H(w_matrix, k)
+
+                # Call the C extension with initial H and W
+                result_matrix = symnmf.symnmf(w_matrix, h_init.tolist(), n, k)
 
         if result_matrix is None:
             raise RuntimeError
