@@ -11,8 +11,8 @@ def print_matrix(matrix):
 
 def init_H(w_matrix, k):
     np.random.seed(1234)
-    m = np.mean(w_matrix)
-    return np.random.uniform(0, 2 * np.sqrt(m / k), size=(len(w_matrix), k))
+    m = np.mean(w_matrix, dtype=np.float64)
+    return np.random.uniform(0.0, 2 * np.sqrt(m / float(k)), size=(len(w_matrix), k)).astype(np.float64, copy=False)
 
 
 def run_symnmf(k, goal, file_name):
@@ -57,4 +57,4 @@ if __name__ == "__main__":
     k = int(sys.argv[1])
     goal = sys.argv[2]
     file_name = sys.argv[3]
-    run_symnmf(k, goal, file_name)
+    print_matrix(run_symnmf(k, goal, file_name))

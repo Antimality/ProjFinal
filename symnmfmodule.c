@@ -160,7 +160,7 @@ double **_sym_wrapper(PyObject *points_py, int n, int d) {
 
     /* Translate point matrix to C */
     points_c = matrix_py_to_c(points_py, n, d);
-    Py_DECREF(points_py);
+    // Py_DECREF(points_py);
     if (!points_c)
         return NULL;
 
