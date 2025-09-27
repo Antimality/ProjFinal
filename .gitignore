@@ -4,3 +4,4 @@ build/
 212*/
 *.o
 *.so
+symnmf

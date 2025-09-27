@@ -186,7 +186,7 @@ static PyObject *sym_wrapper(PyObject *self, PyObject *args) {
         return NULL;
 
     /* Translate matrix to Python*/
-    sym_py = matrix_c_to_py(sym_c, n, d);
+    sym_py = matrix_c_to_py(sym_c, n, n);
     free_matrix(sym_c, n);
 
     return sym_py;
@@ -223,7 +223,7 @@ static PyObject *ddg_wrapper(PyObject *self, PyObject *args) {
         return NULL;
 
     /* Translate matrix to Python */
-    dgg_py = matrix_c_to_py(dgg_c, n, d);
+    dgg_py = matrix_c_to_py(dgg_c, n, n);
     free_matrix(dgg_c, n);
 
     return dgg_py;
@@ -248,7 +248,7 @@ double **_norm_wrapper(PyObject *points_py, int n, int d) {
     /* Calculate norm matrix */
     norm_c = calc_norm(sym_c, dgg_c, n);
     free_matrix(sym_c, n);
-    free(dgg_c, n);
+    free_matrix(dgg_c, n);
 
     return norm_c;
 }
@@ -268,7 +268,7 @@ static PyObject *norm_wrapper(PyObject *self, PyObject *args) {
         return NULL;
 
     /* Translate matrix to Python*/
-    norm_py = matrix_c_to_py(norm_c, n, d);
+    norm_py = matrix_c_to_py(norm_c, n, n);
     free_matrix(norm_c, n);
 
     return norm_py;
@@ -300,7 +300,7 @@ static PyObject *symnmf_wrapper(PyObject *self, PyObject *args) {
     /* Calculate H matrix */
     H_c = calc_symnmf(W_c, H_init_c, n, k);
     free_matrix(W_c, n);
-    free_matrix(H_init_c, n);
+    // free_matrix(H_init_c, n);
 
     /* Translate H matrix to Python*/
     H_py = matrix_c_to_py(H_c, n, k);

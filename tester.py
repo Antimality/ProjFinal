@@ -43,16 +43,16 @@ class TestData:
         while retry:
             retry = False
 
-            n = rng.integers(50, 801)
-            dim = rng.integers(2, 11)
-            k = rng.integers(2, n // 2)
+            self.n = rng.integers(50, 801)
+            self.dim = rng.integers(2, 11)
+            self.k = rng.integers(2, self.n // 2)
 
             if rng.choice(2):
-                centers = rng.normal(scale=10.0, size=(k, dim))
+                centers = rng.normal(scale=10.0, size=(self.k, self.dim))
             else:
-                centers = rng.uniform(-10, 11, size=(k, dim))
+                centers = rng.uniform(-10, 11, size=(self.k, self.dim))
 
-            self.X = rng.choice(centers, n) + rng.standard_normal((n, dim))
+            self.X = rng.choice(centers, self.n) + rng.standard_normal((self.n, self.dim))
             if round:
                 self.X = np.round(self.X, 4)
 
@@ -431,27 +431,27 @@ def test_symnmf_lib():
     )
 
     goal_name = format_goal_name("sym")
-    A = np.array(symnmf.sym(test_data.X))
+    A = np.array(symnmf.sym(test_data.X, test_data.n, test_data.dim))
     if not np.all(np.linalg.norm(test_data.A - A, axis=1) < EPS):
         print_red(err_msg.format(goal_name))
         return False
 
     goal_name = format_goal_name("ddg")
-    D = np.array(symnmf.ddg(test_data.X))
+    D = np.array(symnmf.ddg(test_data.X, test_data.n, test_data.dim))
     if not np.all(np.linalg.norm(test_data.D - D, axis=1) < EPS):
         print_red(err_msg.format(goal_name))
         return False
 
     goal_name = format_goal_name("norm")
     W_target = normalized_similarity_matrix(test_data.A, test_data.D)
-    W = np.array(symnmf.norm(test_data.X))
+    W = np.array(symnmf.norm(test_data.X, test_data.n, test_data.dim))
     if not np.all(np.linalg.norm(W_target - W, axis=1) < EPS):
         print_red(err_msg.format(goal_name))
         return False
 
     goal_name = format_goal_name("symnmf")
     initial_H, final_H_target = symnmf_main(W, k)
-    final_H = np.array(symnmf.symnmf(initial_H, W))
+    final_H = np.array(symnmf.symnmf(initial_H, W, test_data.n, test_data.k))
     if not np.all(np.linalg.norm(final_H_target - final_H, axis=1) < EPS):
         print_red(err_msg.format(goal_name))
         return False
