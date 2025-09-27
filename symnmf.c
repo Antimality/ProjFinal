@@ -6,6 +6,7 @@
 
 int global_n;
 int global_d; 
+
 /*
  * ============================================================================
  * Main function for command-line execution

@@ -9,9 +9,9 @@ def print_matrix(matrix):
         print(",".join(["%.4f" % val for val in row]))
 
 
-def _symnmf(data_points_list, n, k):
+def _symnmf(data_points_list, n, d, k):
     # 1. Calculate W (normalized similarity matrix)
-    w_matrix = symnmf.norm(data_points_list)
+    w_matrix = symnmf.norm(data_points_list, n, d)
 
     # 2. Initialize H in Python as required [cite: 68-70]
     np.random.seed(1234)
@@ -19,7 +19,7 @@ def _symnmf(data_points_list, n, k):
     h_init = np.random.uniform(0, 2 * np.sqrt(m / k), size=(n, k))
 
     # 3. Call the C extension with initial H and W
-    return symnmf.symnmf(w_matrix, h_init.tolist())
+    return symnmf.symnmf(w_matrix, h_init.tolist(), n, k)
 
 
 def run_symnmf(k, goal, file_name):
@@ -35,13 +35,16 @@ def run_symnmf(k, goal, file_name):
         # Execute the requested goal
         match goal:
             case "sym":
-                result_matrix = symnmf.sym(data_points_list)
+                result_matrix = symnmf.sym(data_points_list, n, d)
             case "ddg":
-                result_matrix = symnmf.ddg(data_points_list)
+                result_matrix = symnmf.ddg(data_points_list, n, d)
             case "norm":
-                result_matrix = symnmf.norm(data_points_list)
+                result_matrix = symnmf.norm(data_points_list, n, d)
             case "symnmf":
-                result_matrix = _symnmf(data_points_list, n, k)
+                result_matrix = _symnmf(data_points_list, n, d, k)
+
+        if result_matrix is None:
+            raise RuntimeError
 
         return result_matrix
 
