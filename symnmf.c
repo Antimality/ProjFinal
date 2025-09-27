@@ -291,12 +291,11 @@ void free_vectors(vector *vec) {
 double **read_input(char *file_name){
     vector *head_vec, *curr_vec;
     cord *head_cord, *curr_cord;
-    int rows;
+    int rows = 0;
     double n;
     char c;
     FILE *fp = fopen(file_name, "r");
-    if(fp == NULL){
-        return NULL;}
+    if(fp == NULL){return NULL;}
     head_cord = (cord *)malloc(sizeof(cord));
     curr_cord = head_cord;
     curr_cord->next = NULL;
@@ -304,11 +303,7 @@ double **read_input(char *file_name){
     curr_vec = head_vec;
     curr_vec->next = NULL;
     if (head_cord == NULL || head_vec == NULL) {
-        free(curr_cord);
-        free(curr_vec);
-        fclose(fp);
-        return NULL;}
-    rows = 0;
+        return free_read(curr_vec, curr_cord, fp);}
     while (fscanf(fp, "%lf%c", &n, &c) == 2) {
         if (c == '\n') {
             curr_cord->value = n;
@@ -322,18 +317,13 @@ double **read_input(char *file_name){
             curr_cord->next = NULL;
             rows++;
             if (curr_cord == NULL || curr_vec == NULL) {
-                free_vectors(head_vec);
-                free_cords(head_cord);
-                fclose(fp);
-                return NULL;}
+                return free_read(head_vec, head_cord, fp);}
             continue;}
         curr_cord->value = n;
         curr_cord->next = (cord *)malloc(sizeof(cord));
         curr_cord = curr_cord->next;
         if (curr_cord == NULL) {
-            free_vectors(head_vec);
-            fclose(fp);
-            return NULL;}
+            return free_read(head_vec, curr_cord, fp);}
         curr_cord->next = NULL;}
     free_cords(head_cord);
     fclose(fp);
@@ -366,4 +356,11 @@ double **vec_to_mat(vector *head_vec,int rows){
     global_n = rows;
     global_d = d;
     return matrix;
+}
+
+double **free_read(vector *head_vec, cord *head_cord, FILE *fp) {
+    free_vectors(head_vec);
+    free_cords(head_cord);
+    if (fp != NULL) fclose(fp);
+    return NULL;
 }
