@@ -12,7 +12,7 @@ def print_matrix(matrix):
 def init_H(w_matrix, k):
     np.random.seed(1234)
     m = np.mean(w_matrix, dtype=np.float64)
-    return np.random.uniform(0.0, 2 * np.sqrt(m / float(k)), size=(len(w_matrix), k)).astype(np.float64, copy=False)
+    return np.random.uniform(0.0, 2.0 * np.sqrt(m / float(k)), size=(len(w_matrix), k)).astype(np.float64, copy=False)
 
 
 def run_symnmf(k, goal, file_name):
