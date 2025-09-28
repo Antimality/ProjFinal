@@ -1,15 +1,18 @@
 #ifndef SYMNMF_H
 #define SYMNMF_H
+
 #define MAX_ITER 300
-#define epsilon 0.0001
-#define beta 0.5
-#define delta 0.000000001
+#define EPS 0.0001
+#define BETA 0.5
+#define DELTA 0.000000001
 
 #include <stdio.h>
 
 /*
-struct definitions
-*/
+ * ============================================================================
+ * Struct definitions
+ * ============================================================================
+ */
 
 struct cord {
     double value;
@@ -23,6 +26,55 @@ struct vector {
 
 typedef struct cord cord;
 typedef struct vector vector;
+
+/*
+ * ============================================================================
+ * Command Line Execution Helper Function Prototypes
+ * ============================================================================
+ */
+
+/**
+ * @brief Reads points from a txt file.
+ * @param file_name name of the file.
+ * @return A 2D matrix of doubles
+ **/
+double **read_input(char *file_name);
+
+/**
+ * @brief Converts a linked list of vectors to a 2D matrix.
+ * @param head_vec Pointer to the head of the vector linked list.
+ * @param rows Number of rows (vectors) in the list.
+ * @return A pointer to the allocated 2D matrix.
+ */
+double **vec_to_mat(vector *head_vec, int rows);
+
+/**
+ * @brief Frees memory allocated for vectors and cords during file read, closes file, and returns NULL.
+ * @param head_vec Pointer to the head of the vector linked list.
+ * @param head_cord Pointer to the head of the cord linked list.
+ * @param fp Pointer to the open file (can be NULL if file read failed).
+ * @return Always returns NULL for error handling.
+ */
+double **free_read(vector *head_vec, cord *head_cord, FILE *fp);
+
+/**
+ * @brief Parses a row from a file and builds linked lists of cords and vectors.
+ * @param fp Pointer to the open file.
+ * @param head_cord Pointer to the head of the cord linked list.
+ * @param curr_cord Pointer to the current cord node.
+ * @param curr_vec Pointer to the current vector node.
+ * @param rows Pointer to the row count variable.
+ * @return 0 on success, 1 on allocation error.
+ */
+int parse_row(FILE *fp, cord **head_cord, cord **curr_cord, vector **curr_vec, int *rows);
+
+/**
+ * @brief Executes the specified goal using the provided data points and prints the result.
+ * @param goal The goal string ("sym", "ddg", or "norm").
+ * @param data_points The input data points matrix.
+ */
+void run_goal(const char *goal, double **data_points);
+
 /*
  * ============================================================================
  * Function Prototypes
@@ -92,7 +144,7 @@ void free_matrix(double **matrix, int rows);
 void handle_error();
 
 /**
- * @brief calculates Euclidean distance of two vectors.
+ * @brief calculates squared Euclidean distance of two vectors.
  * @param vec1 The first vector.
  * @param vec2 The second vector.
  * @param dim The vectors size.
@@ -101,7 +153,7 @@ void handle_error();
 double euclidean_distance(double *vec1, double *vec2, int dim);
 
 /**
- * @brief calculates Frobenius norm of a 2D matrix.
+ * @brief calculates squared Frobenius norm of a 2D matrix.
  * @param matrix1 The matrix to calculate.
  * @param matrix2 The matrix to calculate.
  * @param rows The number of rows in the matrix.
@@ -116,19 +168,18 @@ double frobenius_norm(double **matrix1, double **matrix2, int rows, int cols);
  * @param matrix1 The  first matrix.
  * @param matrix2 The  second matrix.
  * @param row1 The first matrix number of rows.
- * @param row2 The second matrix number of columns.
  * @param cols1 The first matrix number of columns.
  * @param cols2 The second matrix number of columns.
  * @returns a pointer to the caluclated matrix.
  */
-double **matrix_multiply(double **matrix1, double **matrix2, int row1, int row2, int cols1, int cols2);
+double **matrix_multiply(double **matrix1, double **matrix2, int row1, int cols1, int cols2);
 
 /**
- * @brief Returns the special multiplication of the H matrix.
+ * @brief Calculates H * H^T (Matrix multiplication)
  * @param matrix The matrix to calculate.
  * @param rows The number of rows in the matrix.
  * @param cols The number of columns in the matrix.
- * @returns pointer to a new H(H^T) matrix.
+ * @returns pointer to a new H*H^T matrix.
  */
 double **H_multiply(double **matrix, int rows, int cols);
 
@@ -158,7 +209,7 @@ double **H_update(double **matrix_W, double **matrix_H, int row_W, int row_H, in
  * @brief initilize a matrix full of 0.0
  * @param rows The number of rows in the matrix.
  * @param cols The number of columns in the matrix.
- * @returns a pointer to the matrix/
+ * @returns a pointer to the matrix
  */
 double **matrix_init(int rows, int cols);
 
@@ -169,14 +220,16 @@ double **matrix_init(int rows, int cols);
  */
 void inv_root(double **matrix, int n);
 
-void free_cords(cord *head);
+/**
+ * @brief Frees the memory allocated for a cord structure.
+ * @param cor The cord to free.
+ */
+void free_cords(cord *cor);
 
+/**
+ * @brief Frees the memory allocated for a vector structure.
+ * @param vec The vec to free.
+ */
 void free_vectors(vector *vec);
-
-double **read_input(char *file_name);
-
-double **vec_to_mat(vector *head_vec, int rows);
-
-double **free_read(vector *head_vec, cord *head_cord, FILE *fp);
 
 #endif

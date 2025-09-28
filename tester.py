@@ -14,11 +14,11 @@ import numpy as np
 
 VALGRIND_ERRCODE = 99
 EPS = 1e-4
-TRIALS_PROGRAMS = 5
-TRIALS_SYMNMF_LIB = 5
-TRIALS_VALGRIND_C = 3
-TRIALS_VALGRIND_PY_SYMNMF = 6
-TRIALS_ANALYSIS_PY = 5
+TRIALS_PROGRAMS = 10
+TRIALS_SYMNMF_LIB = 10
+TRIALS_VALGRIND_C = 10
+TRIALS_VALGRIND_PY_SYMNMF = 10
+TRIALS_ANALYSIS_PY = 10
 TEST_PYTHON_MEMORY = True
 
 REGEX_NUMBER_FMT = r"-?(?:0|[1-9]\d*)\.\d{4}"
@@ -431,27 +431,27 @@ def test_symnmf_lib():
     )
 
     goal_name = format_goal_name("sym")
-    A = np.array(symnmf.sym(test_data.X, test_data.n, test_data.dim))
+    A = np.array(symnmf.sym(test_data.X.tolist(), test_data.n, test_data.dim))
     if not np.all(np.linalg.norm(test_data.A - A, axis=1) < EPS):
         print_red(err_msg.format(goal_name))
         return False
 
     goal_name = format_goal_name("ddg")
-    D = np.array(symnmf.ddg(test_data.X, test_data.n, test_data.dim))
+    D = np.array(symnmf.ddg(test_data.X.tolist(), test_data.n, test_data.dim))
     if not np.all(np.linalg.norm(test_data.D - D, axis=1) < EPS):
         print_red(err_msg.format(goal_name))
         return False
 
     goal_name = format_goal_name("norm")
-    W_target = normalized_similarity_matrix(test_data.A, test_data.D)
-    W = np.array(symnmf.norm(test_data.X, test_data.n, test_data.dim))
+    W_target = normalized_similarity_matrix(test_data.A.tolist(), test_data.D)
+    W = np.array(symnmf.norm(test_data.X.tolist(), test_data.n, test_data.dim))
     if not np.all(np.linalg.norm(W_target - W, axis=1) < EPS):
         print_red(err_msg.format(goal_name))
         return False
 
     goal_name = format_goal_name("symnmf")
     initial_H, final_H_target = symnmf_main(W, k)
-    final_H = np.array(symnmf.symnmf(initial_H, W, test_data.n, test_data.k))
+    final_H = np.array(symnmf.symnmf(W.tolist(), initial_H.tolist(), test_data.n, k))
     if not np.all(np.linalg.norm(final_H_target - final_H, axis=1) < EPS):
         print_red(err_msg.format(goal_name))
         return False

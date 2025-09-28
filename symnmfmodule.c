@@ -1,12 +1,7 @@
 #define PY_SSIZE_T_CLEAN
+#include "symnmfmodule.h"
 #include "symnmf.h"
 #include <Python.h>
-
-/* Forward declarations for the wrapper functions */
-static PyObject *sym_wrapper(PyObject *self, PyObject *args);
-static PyObject *ddg_wrapper(PyObject *self, PyObject *args);
-static PyObject *norm_wrapper(PyObject *self, PyObject *args);
-static PyObject *symnmf_wrapper(PyObject *self, PyObject *args);
 
 /*
  * ============================================================================
@@ -70,7 +65,6 @@ PyMODINIT_FUNC PyInit_mysymnmf(void) {
  * ============================================================================
  */
 
-/* Helper function to convert a Python list of lists to a C double** */
 double **matrix_py_to_c(PyObject *py_matrix, int n, int m) {
     Py_ssize_t i, j;
     PyObject *row, *item;
@@ -108,7 +102,6 @@ double **matrix_py_to_c(PyObject *py_matrix, int n, int m) {
     return c_matrix;
 }
 
-/* Helper function to convert a C double** to a Python list of lists */
 PyObject *matrix_c_to_py(double **c_matrix, int n, int m) {
     PyObject *py_matrix, *row_list, *num;
     int i, j;
@@ -154,13 +147,11 @@ PyObject *matrix_c_to_py(double **c_matrix, int n, int m) {
  * ============================================================================
  */
 
-/* Sym function calls */
 double **_sym_wrapper(PyObject *points_py, int n, int d) {
     double **points_c, **sym_c;
 
     /* Translate point matrix to C */
     points_c = matrix_py_to_c(points_py, n, d);
-    // Py_DECREF(points_py);
     if (!points_c)
         return NULL;
 
@@ -171,7 +162,6 @@ double **_sym_wrapper(PyObject *points_py, int n, int d) {
     return sym_c;
 }
 
-/* Wrapper for sym function */
 static PyObject *sym_wrapper(PyObject *self, PyObject *args) {
     PyObject *points_py, *sym_py;
     int n, d;
@@ -192,7 +182,6 @@ static PyObject *sym_wrapper(PyObject *self, PyObject *args) {
     return sym_py;
 }
 
-/* Dgg function calls */
 double **_dgg_wrapper(PyObject *points_py, int n, int d) {
     double **sym_c, **dgg_c;
 
@@ -208,7 +197,6 @@ double **_dgg_wrapper(PyObject *points_py, int n, int d) {
     return dgg_c;
 }
 
-/* Wrapper for ddg function */
 static PyObject *ddg_wrapper(PyObject *self, PyObject *args) {
     PyObject *points_py, *dgg_py;
     int n, d;
@@ -229,7 +217,6 @@ static PyObject *ddg_wrapper(PyObject *self, PyObject *args) {
     return dgg_py;
 }
 
-/* Norm function calls */
 double **_norm_wrapper(PyObject *points_py, int n, int d) {
     double **sym_c, **dgg_c, **norm_c;
 
@@ -253,7 +240,6 @@ double **_norm_wrapper(PyObject *points_py, int n, int d) {
     return norm_c;
 }
 
-/* Wrapper for norm function */
 static PyObject *norm_wrapper(PyObject *self, PyObject *args) {
     PyObject *points_py, *norm_py;
     int n, d;
@@ -274,7 +260,6 @@ static PyObject *norm_wrapper(PyObject *self, PyObject *args) {
     return norm_py;
 }
 
-/* Wrapper for symnmf function */
 static PyObject *symnmf_wrapper(PyObject *self, PyObject *args) {
     PyObject *W_py, *H_init_py, *H_py;
     double **W_c, **H_init_c, **H_c;
@@ -285,13 +270,11 @@ static PyObject *symnmf_wrapper(PyObject *self, PyObject *args) {
 
     /* Translate W matrix to C */
     W_c = matrix_py_to_c(W_py, n, n);
-    Py_DECREF(W_py);
     if (!W_c)
         return NULL;
 
     /* Translate initial H matrix to C */
     H_init_c = matrix_py_to_c(H_init_py, n, k);
-    Py_DECREF(H_init_py);
     if (!H_init_c) {
         free_matrix(W_c, n);
         return NULL;
@@ -300,7 +283,6 @@ static PyObject *symnmf_wrapper(PyObject *self, PyObject *args) {
     /* Calculate H matrix */
     H_c = calc_symnmf(W_c, H_init_c, n, k);
     free_matrix(W_c, n);
-    // free_matrix(H_init_c, n);
 
     /* Translate H matrix to Python*/
     H_py = matrix_c_to_py(H_c, n, k);
