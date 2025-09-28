@@ -112,8 +112,8 @@ double **calc_symnmf(double **W, double **H, int n, int k) {
             return NULL;
         }
         if (frobenius_norm(H_copy, new_H, n, k) < epsilon) {
-            free_matrix(new_H, n);
-            return H_copy;
+            free_matrix(H_copy, n);
+            return new_H;
         } else {
             free_matrix(H_copy, n);
             H_copy = new_H;
@@ -312,8 +312,11 @@ double **read_input(char *file_name) {
             curr_vec->cords = head_cord;
             curr_vec->next = (vector *)malloc(sizeof(vector));
             curr_vec = curr_vec->next;
+            curr_vec->cords = NULL;
+            curr_vec->next = NULL;
             head_cord = (cord *)malloc(sizeof(cord));
             curr_cord = head_cord;
+            curr_cord->next = NULL;
             rows++;
             if (curr_cord == NULL || curr_vec == NULL)
                 return free_read(head_vec, head_cord, fp);

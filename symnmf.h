@@ -3,7 +3,7 @@
 #define MAX_ITER 300
 #define epsilon 0.0001
 #define beta 0.5
-#define delta 0.000001
+#define delta 0.000000001
 
 #include <stdio.h>
 
